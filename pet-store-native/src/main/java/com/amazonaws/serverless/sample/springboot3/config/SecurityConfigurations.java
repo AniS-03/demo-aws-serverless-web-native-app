@@ -9,18 +9,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.amazonaws.serverless.sample.springboot3.filter.SimpleFilter;
-import com.sample.filters.OutsideProjectFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfigurations {
-
-    @Autowired
-    private OutsideProjectFilter outsideFilter;
 
     @Autowired
     private SimpleFilter simpleFilter;
@@ -32,12 +27,10 @@ public class SecurityConfigurations {
                 .cors(cors -> cors.disable())
                 .authorizeHttpRequests(auth -> {
                     auth
-                            .requestMatchers("/pets").authenticated()
-                            .anyRequest().permitAll();
-                            // .anyRequest().permitAll();
+                            // .requestMatchers("/pets").authenticated()
+                            .anyRequest().authenticated();
                 })
-                .addFilterAfter(outsideFilter, LogoutFilter.class)
-                .addFilterAfter(simpleFilter, RequestCacheAwareFilter.class)
+                .addFilterAfter(simpleFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS).sessionFixation().none());
 
         return http.build();
